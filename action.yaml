@@ -1,0 +1,34 @@
+name: matrix_value_from_file_action
+description: |
+  Make matrix values for next jobs.
+  To use matrix_value_from_file_action, following  steps are necessary.
+  1. [write file step(caller's step)] Write multiline values to a plain text file.
+  2. [make json file step] Convert the plain text file to a json file.
+  3. [set matrix value step] Convert the json file to a compacted array using jq and stored in the output.
+inputs:
+  file_path:
+    description: file path
+    required: true
+outputs:
+  result:
+    description: matrix value result
+    value: ${{ steps.matrix_value.outputs.result }}
+runs:
+  using: composite
+  steps:
+    - name: make json file
+      uses: actions/github-script@v6
+      env:
+        FILE_PATH: ${{ inputs.file_path }}
+      with:
+        script: |
+          const fs = require('fs')
+          const filePath = process.env.FILE_PATH
+          const fileData = fs.readFileSync(filePath, 'utf-8')
+          const fileArray = fileData.split("\n").filter(Boolean)
+          fs.writeFileSync(`${filePath}.json`, JSON.stringify(fileArray))
+    - name: set matrix value
+      id: matrix_value
+      shell: bash
+      run: |
+        echo "result=$(cat ${{ inputs.file_path }}.json | jq -c)" >> "${GITHUB_OUTPUT}"
