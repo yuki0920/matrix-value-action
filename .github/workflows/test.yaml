@@ -1,0 +1,45 @@
+name: Test
+on:
+  - push
+jobs:
+  prepare_matrix_value:
+    runs-on: ubuntu-latest
+    outputs:
+      result: ${{ steps.make_matrix_value.outputs.result }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: make multiline values named tests
+        run: |
+          cat << EOF > test_data
+          test-1
+          test-2
+          test-3
+          EOF
+      - name: cat test file
+        run: |
+          cat test_data
+      - name: make matrix value
+        id: make_matrix_value
+        uses: ./
+        with:
+          file_path: test_data
+      - name: echo matrix value
+        run: |
+          echo "${{ steps.make_matrix_value.outputs.result }}"
+
+  use_matrix_value:
+    runs-on: ubuntu-latest
+    needs: prepare_matrix_value
+    strategy:
+      matrix:
+        value: ${{ fromJSON(needs.prepare_matrix_value.outputs.result) }}
+    steps:
+      - name: echo matrix value
+        run: |
+          echo "${{ needs.prepare_matrix_value.outputs.result }}"
+      - name: echo fromJSON matrix value
+        run: |
+          echo "${{ fromJSON(needs.prepare_matrix_value.outputs.result) }}"
+      - name: echo value
+        run: |
+          echo "${{ matrix.value }}"
