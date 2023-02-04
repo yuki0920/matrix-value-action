@@ -1,10 +1,15 @@
 name: matrix_value_from_file_action
 description: |
   Make matrix values for next jobs.
-  To use matrix_value_from_file_action, following  steps are necessary.
-  1. [write file step(caller's step)] Write multiline values to a plain text file.
-  2. [make json file step] Convert the plain text file to a json file.
-  3. [set matrix value step] Convert the json file to a compacted array using jq and stored in the output.
+
+  matrix_value_from_file_action action is designed to make matrix value(eg. `"["test1", "test2"]"`)
+  Using matrix makes us to handle loop procedures.
+  This action will run following steps:
+
+  0. (caller's step) Write multiline values to a plain text file.
+  1. Convert the plain text file to a json file.
+  2. Convert the json file to a compacted array using jq and stored in the output.
+
 inputs:
   file_path:
     description: file path
