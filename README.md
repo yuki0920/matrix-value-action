@@ -6,8 +6,10 @@
 
 Make matrix values for next jobs.
 
-matrix_value_from_file_action action is designed to make matrix value(eg. `"["test1", "test2"]"`)
+matrix_value_from_file_action action is designed to make matrix value(eg. `"["test1","test2","test3"]"`)
+
 Using matrix makes us to handle loop procedures.
+
 This action will run following steps:
 
 0. (caller's step) Write multiline values to a plain text file.
@@ -24,36 +26,44 @@ This action will run following steps:
 
 | Name | Description |
 | :--- | :---------- |
-| result | matrix value result |
+| result | matrix value result(eg. `"["test1","test2","test3"]"`) |
 
 <!-- actdocs end -->
 
 ## Usage
 
-  ```yaml
-  jobs:
-    prepare_matrix_value:
-      outputs:
-        result: ${{ steps.make_matrix_value.outputs.result }} # Define outputs to next jobs.
-      steps:
-        - name: make multiline values named tests # Make multiline files for loop procedure.
-          run: |
-            cat << EOF > test_data
-            test-1
-            test-2
-            test-3
-            EOF
-        - name: make matrix value # Store matrix value to `steps.<step_name>.<id>.result`.
-          id: make_matrix_value
-          uses: yuki0920/matrix-value-fromfile-action@v0
-          with:
-            file_path: test_data
-    use_matrix_value:
-      strategy:
-        matrix:
-          value: ${{ fromJSON(needs.prepare_matrix_value.outputs.result) }} # Use matrix value.
-      steps:
-        - name: echo value # Replase with some loop procedures.
-          run: |
-            echo "${{ matrix.value }}"
-  ```
+```yaml
+jobs:
+  prepare_matrix_value:
+    outputs:
+      result: ${{ steps.make_matrix_value.outputs.result }} # Define outputs to next jobs.
+    steps:
+      - name: make multiline values named tests # Make multiline files for loop procedure.
+        run: |
+          cat << EOF > test_data
+          test-1
+          test-2
+          test-3
+          EOF
+      - name: make matrix value # Store matrix value to `steps.<step_name>.<id>.result`.
+        id: make_matrix_value
+        uses: yuki0920/matrix-value-fromfile-action@v0
+        with:
+          file_path: test_data
+  use_matrix_value:
+    needs: prepare_matrix_value
+    strategy:
+      matrix:
+        value: ${{ fromJSON(needs.prepare_matrix_value.outputs.result) }} # Use matrix value.
+    steps:
+      - name: echo value # Replase with some loop procedures.
+        run: |
+          echo "${{ matrix.value }}"
+```
+
+[Here](https://github.com/yuki0920/matrix-value-from-file-action/blob/main/.github/workflows/test.yaml) in entire codes.
+
+The matrix syntax makes it easy to build an easy-to-read workflow as shown below.
+
+![ScreenShot 236](https://user-images.githubusercontent.com/47182350/216739253-92b70085-0e00-4c01-b44f-79b048ef929c.png)
+
