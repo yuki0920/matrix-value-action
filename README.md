@@ -6,8 +6,10 @@
 
 Make matrix values for next jobs.
 
-matrix_value_from_file_action action is designed to make matrix value(eg. `"["test1", "test2"]"`)
+matrix_value_from_file_action action is designed to make matrix value(eg. `"["test1","test2","test3"]"`)
+
 Using matrix makes us to handle loop procedures.
+
 This action will run following steps:
 
 0. (caller's step) Write multiline values to a plain text file.
@@ -24,7 +26,7 @@ This action will run following steps:
 
 | Name | Description |
 | :--- | :---------- |
-| result | matrix value result |
+| result | matrix value result(eg. `"["test1","test2","test3"]"`) |
 
 <!-- actdocs end -->
 
@@ -49,6 +51,7 @@ This action will run following steps:
           with:
             file_path: test_data
     use_matrix_value:
+      needs: prepare_matrix_value
       strategy:
         matrix:
           value: ${{ fromJSON(needs.prepare_matrix_value.outputs.result) }} # Use matrix value.
