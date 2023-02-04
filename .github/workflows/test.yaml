@@ -34,12 +34,6 @@ jobs:
       matrix:
         value: ${{ fromJSON(needs.prepare_matrix_value.outputs.result) }}
     steps:
-      - name: echo matrix value
-        run: |
-          echo "${{ needs.prepare_matrix_value.outputs.result }}"
-      - name: echo fromJSON matrix value
-        run: |
-          echo "${{ fromJSON(needs.prepare_matrix_value.outputs.result) }}"
       - name: echo value
         run: |
           echo "${{ matrix.value }}"
